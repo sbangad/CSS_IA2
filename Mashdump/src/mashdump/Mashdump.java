@@ -181,5 +181,148 @@ public class Mashdump
                 pc.close();
             }
         }
+        else if(args.length==5&&args[0].trim().equals("ip")&&args[1].trim().equals("-i")&&args[3].trim().equals("-s"))
+        {
+            int num=Integer.parseInt(args[2])-1;
+            PcapIf interf=interfaces.get(num);
+            int len=64*1024;
+            int flags=Pcap.MODE_PROMISCUOUS;
+            int timeout=10*100;
+            Pcap pc=Pcap.openLive(interf.getName(),len,flags,timeout,error);
+            if(pc==null)
+            {
+                System.out.println("Some error!");
+            }
+            else
+            {
+                PcapPacketHandler<String> packetHandler=new PcapPacketHandler<String>(){
+                    @Override
+                    public void nextPacket(PcapPacket packet,String user)
+                    {
+                        byte[] data=packet.getByteArray(0,packet.size());
+                        byte[] sIP=new byte[4];
+                        byte[] dIP=new byte[4];
+                        Ip4 ip=new Ip4();
+                        if(!packet.hasHeader(ip))
+                            return;
+                        sIP=ip.source();
+                        dIP=ip.destination();
+                        String source=org.jnetpcap.packet.format.FormatUtils.ip(sIP);
+                        if(!source.equals(args[4]))
+                            return;
+                        String destination=org.jnetpcap.packet.format.FormatUtils.ip(dIP);
+                        System.out.println("Source: "+source+" Destination: "+destination+" caplen="+packet.getCaptureHeader().caplen());
+                    }
+                };
+                pc.loop(10,packetHandler,"jNetPcap");
+                pc.close();
+            }
+        }
+        else if(args.length==5&&args[0].trim().equals("ip")&&args[1].trim().equals("-i")&&args[3].trim().equals("-d"))
+        {
+            int num=Integer.parseInt(args[2])-1;
+            PcapIf interf=interfaces.get(num);
+            int len=64*1024;
+            int flags=Pcap.MODE_PROMISCUOUS;
+            int timeout=10*100;
+            Pcap pc=Pcap.openLive(interf.getName(),len,flags,timeout,error);
+            if(pc==null)
+            {
+                System.out.println("Some error!");
+            }
+            else
+            {
+                PcapPacketHandler<String> packetHandler=new PcapPacketHandler<String>(){
+                    @Override
+                    public void nextPacket(PcapPacket packet,String user)
+                    {
+                        byte[] data=packet.getByteArray(0,packet.size());
+                        byte[] sIP=new byte[4];
+                        byte[] dIP=new byte[4];
+                        Ip4 ip=new Ip4();
+                        if(!packet.hasHeader(ip))
+                            return;
+                        sIP=ip.source();
+                        dIP=ip.destination();
+                        String source=org.jnetpcap.packet.format.FormatUtils.ip(sIP);
+                        String destination=org.jnetpcap.packet.format.FormatUtils.ip(dIP);
+                        if(!destination.equals(args[4]))
+                            return;
+                        System.out.println("Source: "+source+" Destination: "+destination+" caplen="+packet.getCaptureHeader().caplen());
+                    }
+                };
+                pc.loop(10,packetHandler,"jNetPcap");
+                pc.close();
+            }
+        }
+        else if(args.length==5&&args[0].trim().equals("tcp")&&args[1].trim().equals("-i")&&args[3].trim().equals("-s"))
+        {
+            int num=Integer.parseInt(args[2])-1;
+            PcapIf interf=interfaces.get(num);
+            int len=64*1024;
+            int flags=Pcap.MODE_PROMISCUOUS;
+            int timeout=10*100;
+            Pcap pc=Pcap.openLive(interf.getName(),len,flags,timeout,error);
+            if(pc==null)
+            {
+                System.out.println("Some error!");
+            }
+            else
+            {
+                PcapPacketHandler<String> packetHandler=new PcapPacketHandler<String>(){
+                    @Override
+                    public void nextPacket(PcapPacket packet,String user)
+                    {
+                        byte[] data=packet.getByteArray(0,packet.size());
+                        int sPort,dPort;
+                        Tcp tcp=new Tcp();
+                        if(!packet.hasHeader(tcp))
+                            return;
+                        sPort=tcp.source();
+                        dPort=tcp.destination();
+                        if(sPort!=Integer.parseInt(args[4]))
+                            return;
+                        System.out.println("Source: "+sPort+" Destination: "+dPort+" caplen="+packet.getCaptureHeader().caplen());
+                    }
+                };
+                pc.loop(10,packetHandler,"jNetPcap");
+                pc.close();
+            }
+        }
+        else if(args.length==5&&args[0].trim().equals("tcp")&&args[1].trim().equals("-i")&&args[3].trim().equals("-d"))
+        {
+            int num=Integer.parseInt(args[2])-1;
+            PcapIf interf=interfaces.get(num);
+            int len=64*1024;
+            int flags=Pcap.MODE_PROMISCUOUS;
+            int timeout=10*100;
+            Pcap pc=Pcap.openLive(interf.getName(),len,flags,timeout,error);
+            if(pc==null)
+            {
+                System.out.println("Some error!");
+            }
+            else
+            {
+                PcapPacketHandler<String> packetHandler=new PcapPacketHandler<String>(){
+                    @Override
+                    public void nextPacket(PcapPacket packet,String user)
+                    {
+                        byte[] data=packet.getByteArray(0,packet.size());
+                        int sPort,dPort;
+                        Tcp tcp=new Tcp();
+                        if(!packet.hasHeader(tcp))
+                            return;
+                        sPort=tcp.source();
+                        dPort=tcp.destination();
+                        if(dPort!=Integer.parseInt(args[4]))
+                            return;
+                        System.out.println("Source: "+sPort+" Destination: "+dPort+" caplen="+packet.getCaptureHeader().caplen());
+                    }
+                };
+                pc.loop(10,packetHandler,"jNetPcap");
+                pc.close();
+            }
+        }
+        System.out.println("\nExit");
     }
 }
